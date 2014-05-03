@@ -13,11 +13,11 @@ object Application extends ScalaController {
   def index = Action { request =>
     val newSession = getOrCreateSessionId(request)
     val urlTwitter = getRedirectAction(request, newSession, "TwitterClient", "/result").getLocation()
-    val profile    = getUserProfile(request)
-    Ok(views.html.index(profile,urlTwitter)).withSession(newSession)
+    Ok(views.html.index(urlTwitter)).withSession(newSession)
   }
 
-  def result = Action {
-    Ok(views.html.result())
+  def result = Action { request =>
+    val profile    = getUserProfile(request)
+    Ok(views.html.result(profile))
   }
 }
