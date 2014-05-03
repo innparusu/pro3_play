@@ -16,4 +16,8 @@ object Application extends ScalaController {
     val profile    = getUserProfile(request)
     Ok(views.html.index(profile,urlTwitter)).withSession(newSession)
   }
+
+  def result = Action {
+    Ok(views.html.result())
+  }
 }
