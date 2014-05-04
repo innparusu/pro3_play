@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "org.pac4j"     % "pac4j-openid" % "1.5.0",
   "org.pac4j"     % "pac4j-oauth" % "1.5.0",
   "org.pac4j"     % "pac4j-saml" % "1.5.0",
-  "org.Twitter4j" % "twitter4j-core" % "4.0.1"
+  "org.twitter4j" % "twitter4j-core" % "4.0.1"
 ) 
 
 play.Project.playScalaSettings
