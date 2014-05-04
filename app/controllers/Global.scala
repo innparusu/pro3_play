@@ -7,7 +7,9 @@ import org.pac4j.play.Config
 
 object Global extends GlobalSettings {
   override def onStart(app:Application) {
-    val twitterClient = new TwitterClient("OEccWOt0t1FyfY5stIYKECME6", "ADqXLYdVMZkjf2yv4qhEpJGCau9pwLhmmzJOMFyU6im9XYX2IM")
+    val twitterApiKey = Play.application.configuration.getString("twitterApiKey").get
+    val twitterSecret = Play.application.configuration.getString("twitterSecret").get
+    val twitterClient = new TwitterClient(twitterApiKey,twitterSecret)
     val clients = new Clients("http://localhost:9000/callback",twitterClient)
     Config.setClients(clients)
   }

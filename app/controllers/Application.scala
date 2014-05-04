@@ -2,6 +2,7 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.Play.current
 import org.pac4j.http.client._
 import org.pac4j.core.profile._
 import org.pac4j.oauth.profile.twitter._
@@ -22,7 +23,9 @@ object Application extends ScalaController {
 
   def result = Action { request =>
     val profile:TwitterProfile = getUserProfile(request).asInstanceOf[TwitterProfile]
-    var factory    = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey("OEccWOt0t1FyfY5stIYKECME6").setOAuthConsumerSecret("ADqXLYdVMZkjf2yv4qhEpJGCau9pwLhmmzJOMFyU6im9XYX2IM").build())
+    val twitterApiKey = Play.application.configuration.getString("twitterApiKey").get
+    val twitterSecret = Play.application.configuration.getString("twitterSecret").get
+    var factory    = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
     var twitter    = factory.getInstance(new AccessToken(profile.getAccessToken(), profile.getAccessSecret()));
     Ok(views.html.result(twitter.getMentionsTimeline()))
   }
