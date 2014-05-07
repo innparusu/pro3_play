@@ -1,4 +1,7 @@
-@(mentions: twitter4j.ResponseList[twitter4j.Status])
+@(conversationList:List[twitter4j.Status])
 ログイン成功
 
-@mentions
+@for(status <- conversationList) { 
+  <img src=@status.getUser().getOriginalProfileImageURL() />
+  @status.getUser().getName() @status.getText() <br> 
+}

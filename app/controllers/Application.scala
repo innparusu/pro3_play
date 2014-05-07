@@ -37,7 +37,7 @@ object Application extends ScalaController {
     for(status <- conversationList) {
       println(status.getText())
     }
-    Ok(views.html.result(mentionsList))
+    Ok(views.html.result(conversationList))
   }
 
   private def conversation (list:List[twitter4j.Status], status:twitter4j.Status, twitter:twitter4j.Twitter):List[twitter4j.Status] = {
