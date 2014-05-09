@@ -7,7 +7,7 @@ import anorm.SqlParser._
 
 case class User (
   id: Pk[Long] = NotAssigned,
-  twitter_id :String, access_token :String, access_secret :String
+  twitter_id: String, access_token: String, access_secret: String
 )
 
 object User {
@@ -39,6 +39,12 @@ object User {
   def findById(id: Long): Option[User] = {
     DB.withConnection { implicit connection =>
       SQL("select * from user where id = {id}").on('id -> id).as(User.data.singleOpt)
+    }
+  }
+
+  def findByTwitterId(twitter_id: String): Option[User] = {
+    DB.withConnection { implicit connection =>
+      SQL("select * from user where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(User.data.singleOpt)
     }
   }
  

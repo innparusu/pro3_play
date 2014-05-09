@@ -1,5 +1,6 @@
 package controllers
 
+import models.User
 import scala.collection.JavaConversions._
 import java.util.ArrayList
 import play.api._
@@ -30,7 +31,10 @@ object Application extends ScalaController {
     var factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
     var twitter            = factory.getInstance(new AccessToken(profile.getAccessToken(), profile.getAccessSecret()));
     var mentionsList       = twitter.getMentionsTimeline()
-
+    val user: User         = new User(twitter_id    = profile.getUsername(), 
+                                      access_token  = profile.getAccessToken(), 
+                                      access_secret = profile.getAccessSecret())
+    User.insert(user) 
     var status = mentionsList.get(0)
     var list = List(status)
     var conversationList = conversation(list, status, twitter)
