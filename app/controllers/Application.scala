@@ -19,22 +19,26 @@ import play.api.libs.json.Json
 object Application extends ScalaController {
 
   def index = Action { request =>
-    val newSession = getOrCreateSessionId(request)
-    val urlTwitter = getRedirectAction(request, newSession, "TwitterClient", "/result").getLocation()
-    Ok(views.html.index(urlTwitter)).withSession(newSession)
+    val session = getOrCreateSessionId(request)
+    val urlTwitter = getRedirectAction(request, session, "TwitterClient", "/result").getLocation()
+    Ok(views.html.index(urlTwitter)).withSession(session)
   } 
 
   def result = Action { request =>
-    val profile:TwitterProfile = getUserProfile(request).asInstanceOf[TwitterProfile]
+    val profile            = getUserProfile(request).asInstanceOf[TwitterProfile]
     val twitterApiKey      = Play.application.configuration.getString("twitterApiKey").get
     val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
     var factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
     var twitter            = factory.getInstance(new AccessToken(profile.getAccessToken(), profile.getAccessSecret()));
     var mentionsList       = twitter.getMentionsTimeline()
-    val user: User         = new User(twitter_id    = profile.getUsername(), 
-                                      access_token  = profile.getAccessToken(), 
-                                      access_secret = profile.getAccessSecret())
-    User.insert(user) 
+
+    if (User.findByTwitterId(profile.getUsername()).isEmpty) {
+      val user: User         = new User(twitter_id    = profile.getUsername(),
+                                        access_token  = profile.getAccessToken(),
+                                        access_secret = profile.getAccessSecret())
+      User.insert(user)
+    }
+
     var status = mentionsList.get(0)
     var list = List(status)
     var conversationList = conversation(list, status, twitter)
@@ -44,7 +48,7 @@ object Application extends ScalaController {
     Ok(views.html.result(conversationList))
   }
 
-  private def conversation (list:List[twitter4j.Status], status:twitter4j.Status, twitter:twitter4j.Twitter):List[twitter4j.Status] = {
+  private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
   var statusId = status.getInReplyToStatusId()
     if (statusId  == -1) {
       return list
