@@ -6,6 +6,7 @@
 GET     /                           controllers.Application.index
 GET     /signin                     controllers.Application.signin
 GET     /result                     controllers.Application.result
+GET     /signout                    controllers.Application.signout
 
 # pac4j
 GET     /callback                   org.pac4j.play.CallbackController.callback()

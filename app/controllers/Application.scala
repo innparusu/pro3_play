@@ -22,7 +22,7 @@ object Application extends ScalaController {
   def index = Action { request =>
     val session = getOrCreateSessionId(request)
     val urlTwitter = getRedirectAction(request, session, "TwitterClient", "/signin").getLocation()
-    Ok(views.html.index(urlTwitter)).withSession(session)
+    Ok(views.html.index(urlTwitter, currentUser(request))).withSession(session)
   } 
 
   def signin = Action { request =>
@@ -38,26 +38,37 @@ object Application extends ScalaController {
     Redirect("/result").withSession("twitter_id"    -> profile.getUsername())
   }
 
+  def signout = Action { request =>
+    Redirect("/logout").withNewSession
+  }
+
+
   def result = Action { request =>
     val twitter      = twitterTokenSet(request)
     if (twitter == null) {
       Redirect("/")
     }
+
     else {
-      var mentionsList = twitter.getMentionsTimeline()
-      for (status <- mentionsList) {
-        if (Mention.findByMentionId(status.getId).isEmpty) {
-          val mention :Mention         = new Mention(twitter_id = currentUser(request).twitter_id,
-                                                     mention_id = status.getId())
-          Mention.insert(mention)
-        }
-      }
+      val mentionsList = twitter.getMentionsTimeline()
+      save_mention(mentionsList, request)
       Redirect("/")
-      //var conversationList = conversation(list, status, twitter)
       //Ok(views.html.result(conversationList))
     }
   }
 
+
+  def save_mention(mentionsList: twitter4j.ResponseList[twitter4j.Status], request: RequestHeader) = {
+    for (status <- mentionsList.reverse) {
+      if (Mention.findByMentionId(status.getId).isEmpty) {
+        val mention :Mention         = new Mention(twitter_id = currentUser(request).twitter_id,
+                                                   mention_id = status.getId())
+        Mention.insert(mention)
+      }
+    }
+  }
+
+  // twitter setting
   def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
     val user = currentUser(request)
     if (user == null)  {
@@ -65,11 +76,12 @@ object Application extends ScalaController {
     }
     val twitterApiKey      = Play.application.configuration.getString("twitterApiKey").get
     val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
-    var factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
-    var twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
+    val factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
+    val twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
     twitter
-}
+  }
 
+  //currentuser
   def currentUser(request: RequestHeader) :User = {
     val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
     if (sessionTwitterId == "") {
@@ -79,15 +91,13 @@ object Application extends ScalaController {
     return user
   }
 
-
-
   private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
     var statusId = status.getInReplyToStatusId()
-    if (statusId  == -1) {
+    if (statusId == -1) {
       return list
-  }
-  var stat = twitter.showStatus(statusId)
-  var conversationList = stat::list 
-  conversation(conversationList, stat, twitter)
     }
+  var stat = twitter.showStatus(statusId)
+  var conversationList = stat::list
+  conversation(conversationList, stat, twitter)
   }
+}
