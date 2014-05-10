@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /signin                     controllers.Application.signin
 GET     /result                     controllers.Application.result
 
 # pac4j
