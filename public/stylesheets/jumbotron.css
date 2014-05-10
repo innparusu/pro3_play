@@ -1,11 +1,14 @@
 .jumbotron {
-  padding: 100px;
-  margin-bottom: 100px;
-  color: #222;
-  background-color: #f89406;
-  background: url('../images/back.jpg')
-  background-repeat: repeat;
+  padding:@jumbotoron-padding;
+  margin-bottom: @jumbotoron-padding;
+  font-size: (@font-size-base * 1.5);
+  font-weight: 200;
+  Line-height: (@line-height-base * 1.5);
+  color: @jumbotoron-color;
+  background-color: @jumbotron-bg;
+  background: url('../images/JumbotronBack.jpg')
 }
+
 .jumbotron h1,
 .jumbotron .h1 {
   color: ;
