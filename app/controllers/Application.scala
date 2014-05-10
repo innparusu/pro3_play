@@ -1,6 +1,7 @@
 package controllers
 
 import models.User
+import models.Mention
 import scala.collection.JavaConversions._
 import java.util.ArrayList
 import play.api._
@@ -41,15 +42,19 @@ object Application extends ScalaController {
     val twitter      = twitterTokenSet(request)
     if (twitter == null) {
       Redirect("/")
-    } else {
+    }
+    else {
       var mentionsList = twitter.getMentionsTimeline()
-      var status = mentionsList.get(0)
-      var list = List(status)
-      var conversationList = conversation(list, status, twitter)
-      for(status <- conversationList) {
-        println(status.getText())
+      for (status <- mentionsList) {
+        if (Mention.findByMentionId(status.getId).isEmpty) {
+          val mention :Mention         = new Mention(twitter_id = currentUser(request).twitter_id,
+                                                     mention_id = status.getId())
+          Mention.insert(mention)
+        }
       }
-      Ok(views.html.result(conversationList))
+      Redirect("/")
+      //var conversationList = conversation(list, status, twitter)
+      //Ok(views.html.result(conversationList))
     }
   }
 
