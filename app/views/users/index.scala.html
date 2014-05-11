@@ -1,9 +1,9 @@
-@(currentUser: User)
+@(currentUser: User, countHash: Map[String, Int])
 
 @import helper.twitterBootstrap._
 
+@views.html.idList(currentUser, countHash)
 @main("home", "", currentUser){
-
 
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/jumbotron.css")">
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/back.css")">
