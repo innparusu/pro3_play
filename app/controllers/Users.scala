@@ -25,12 +25,25 @@ object Users extends ScalaController {
       Redirect("/")
     }
     else{
-      Ok(views.html.users.index(user))
+      val twitter   = twitterTokenSet(request)
+      val mentions  = Mention.findByTwitterId(user.twitter_id)
+      val countHash = countSet(mentions, twitter, user)
+      Ok(views.html.users.index(user, countHash))
     }
   }
 
+  //currentuser
+  private def currentUser(request: RequestHeader) :User = {
+    val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
+    if (sessionTwitterId == "") {
+      return null
+    }
+    val user = User.findByTwitterId(sessionTwitterId).get
+    return user
+  }
+
   // twitter setting
-  def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
+  private def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
     val user = currentUser(request)
     if (user == null)  {
       return null
@@ -42,14 +55,19 @@ object Users extends ScalaController {
     twitter
   }
 
-  //currentuser
-  def currentUser(request: RequestHeader) :User = {
-    val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
-    if (sessionTwitterId == "") {
-      return null
+  private def countSet(mentions: Seq[Mention], twitter: twitter4j.Twitter, user:User) : Map[String, Int] = {
+    var countHash = Map[String, Int]()
+    for (mention <- mentions) {
+      val status       = twitter.showStatus(mention.mention_id)
+      val name         = status.getUser().getScreenName()
+      if (countHash.isDefinedAt(name)) {
+        countHash = countHash.updated(name, countHash(name)+1)
+      }
+      else {
+        countHash = countHash.updated(name, 1)
+      }
     }
-    val user               = User.findByTwitterId(sessionTwitterId).get
-    return user
+    countHash
   }
 
   private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
