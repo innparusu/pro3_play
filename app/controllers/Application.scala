@@ -67,6 +67,19 @@ object Application extends ScalaController {
     }
   }
 
+  // twitter setting
+  def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
+    val user = currentUser(request)
+    if (user == null)  {
+      return null
+    }
+    val twitterApiKey      = Play.application.configuration.getString("twitterApiKey").get
+    val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
+    val factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
+    val twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
+    twitter
+  }
+
   //currentuser
   def currentUser(request: RequestHeader) :User = {
     val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
