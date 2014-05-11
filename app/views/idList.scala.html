@@ -1,34 +1,24 @@
+@(currentUser: User, countHash: Map[String, Int])
 <div class="col-md-3">
+  <br>
+  <img src="../img/favicon.jpg" alt="" class="img-thumbnail">
+  <br>
+  <div class="media">
+    <h3>
+      @currentUser.twitter_id
+      <img src="@currentUser.image_url", alt="@currentUser.twitter_id">
+    </h3>
 
-<br>
-
-<img src="../img/favicon.jpg" alt="" class="img-thumbnail">
-
-<br>
-
-● ここにIDを表示すればいいと思います！！<br>
-<div class="media">
-<!-----これで一枠分です-------------->
-  <a class="pull-left" href="#">
-    <img class="media-object" src="..." alt="...">
-  </a>
-  <div class="media-body">
-    <a href="https://twitter.com/innparusu">
-    <h4 class="media-heading">(癶ω 癶)<span class="badge badge-info pull-right">42</span></h4></button></a>
-    ぱるぱるぱるぱる
+    @for((user_name, count) <- countHash) {
+      <a class="pull-left" href="#">
+        <img class="media-object" src="..." alt="...">
+      </a>
+      <div class="media-body">
+        <a href="https://twitter.com/innparusu">
+        <h4 class="media-heading">@user_name<span class="badge badge-info pull-right">@count</span></h4></button>
+        </a>
+      </div>
+      <br>
+    }
   </div>
-<!---------------------------------->
-<br>
-
-  <a class="pull-left" href="#">
-    <img class="media-object" src="favicon.png" alt="...">
-  </a>
-  <div class="media-body">
-    <a href="https://twitter.com/outimatuki">
-    <h4 class="media-heading">大内待輝<span class="badge pull-right">36</span></h4></button></a>
-    ＠モチベあげたい
-  </div>
-
-</div>
-
 </div>

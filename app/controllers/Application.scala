@@ -22,7 +22,13 @@ object Application extends ScalaController {
   def index = Action { request =>
     val session = getOrCreateSessionId(request)
     val urlTwitter = getRedirectAction(request, session, "TwitterClient", "/signin").getLocation()
-    Ok(views.html.index(urlTwitter, currentUser(request))).withSession(session)
+    val user = currentUser(request)
+    if (user == null){
+      Ok(views.html.index(urlTwitter, user)).withSession(session)
+    }
+    else {
+      Redirect("/users/index")
+    }
   } 
 
   def signin = Action { request =>
@@ -31,7 +37,8 @@ object Application extends ScalaController {
     if (User.findByTwitterId(profile.getUsername()).isEmpty) {
       val user: User         = new User(twitter_id    = profile.getUsername(),
                                         access_token  = profile.getAccessToken(),
-                                        access_secret = profile.getAccessSecret())
+                                        access_secret = profile.getAccessSecret(),
+                                        image_url     = profile.getPictureUrl())
       User.insert(user)
     }
 
@@ -48,12 +55,10 @@ object Application extends ScalaController {
     if (twitter == null) {
       Redirect("/")
     }
-
     else {
       val mentionsList = twitter.getMentionsTimeline()
       save_mention(mentionsList, request)
-      Redirect("/")
-      //Ok(views.html.result(conversationList))
+      Redirect("/users/index")
     }
   }
 
@@ -89,15 +94,5 @@ object Application extends ScalaController {
     }
     val user               = User.findByTwitterId(sessionTwitterId).get
     return user
-  }
-
-  private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
-    var statusId = status.getInReplyToStatusId()
-    if (statusId == -1) {
-      return list
-    }
-  var stat = twitter.showStatus(statusId)
-  var conversationList = stat::list
-  conversation(conversationList, stat, twitter)
   }
 }

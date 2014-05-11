@@ -9,10 +9,6 @@
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/back.css")">
 
 
-@if(currentUser != null) {
-  @views.html.idList()
-}
-
 <div class="col-md-9">
   <div class="jumbotron">
     <h1>Welcome!!</h1>
@@ -21,48 +17,6 @@
   既にお持ちのtwitterアカウントでログインすることができます。
   </p>
   </div>
-
-  @if(currentUser != null) {
-    <div class="col-md-6">
-      <div class="alert alert-info">最新の会話</div>
-        <ul class="list-group">
-
-          <li class="list-group-item">
-            <a class="pull-left" href="#">
-              <img class="media-object" src="..." alt="...">
-            </a>
-            <div class="media-body">
-              <a href="https://twitter.com/innparusu">
-              <h4 class="media-heading">ユーザー１<span class="badge badge-info pull-right">42</span></h4></button></a>
-              ・・・・・・・・
-            </div>
-          </li>
-
-        </ul>
-     </div>
-      
-      
-      <div class="col-md-6">
-        <div class="alert alert-info">よく会話をする人</div>
-          <ul class="list-group">
-
-            <li class="list-group-item">
-              <a class="pull-left" href="#">
-                <img class="media-object" src="..." alt="...">
-              </a>
-              <div class="media-body">
-                <a href="https://twitter.com/innparusu">
-                <h4 class="media-heading">ユーザー１<span class="badge badge-info pull-right">42</span></h4></button></a>
-                ・・・・・・・・・・
-              </div>
-            </li>
-
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  }
 </div>
 }
 
