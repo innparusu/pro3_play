@@ -7,7 +7,7 @@ import anorm.SqlParser._
 
 case class User (
   id: Pk[Long] = NotAssigned,
-  twitter_id: String, access_token: String, access_secret: String
+  twitter_id: String, access_token: String, access_secret: String, image_url: String
 )
 
 object User {
@@ -16,8 +16,9 @@ object User {
     get[Pk[Long]]("user.id") ~
     get[String]("user.twitter_id") ~
     get[String]("user.access_token") ~
-    get[String]("user.access_secret") map {
-      case id ~ twitter_id ~ access_token ~ access_secret => User(id, twitter_id, access_token, access_secret)
+    get[String]("user.access_secret") ~ 
+    get[String]("image_url") map {
+      case id ~ twitter_id ~ access_token ~ access_secret ~ image_url => User(id, twitter_id, access_token, access_secret, image_url)
     }
   }
 
@@ -25,13 +26,14 @@ object User {
     DB.withConnection { implicit connection =>
       SQL(
         """
-          insert into user(twitter_id, access_token, access_secret)
-          values ({twitter_id}, {access_token}, {access_secret})
+          insert into user(twitter_id, access_token, access_secret, image_url)
+          values ({twitter_id}, {access_token}, {access_secret}, {image_url})
         """
       ).on(
-        'twitter_id   -> user.twitter_id,
-        'access_token -> user.access_token,
-        'access_secret -> user.access_secret
+        'twitter_id    -> user.twitter_id,
+        'access_token  -> user.access_token,
+        'access_secret -> user.access_secret,
+        'image_url     -> user.image_url
       ).executeUpdate()
     }
   }
