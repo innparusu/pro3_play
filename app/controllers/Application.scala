@@ -52,8 +52,7 @@ object Application extends ScalaController {
     else {
       val mentionsList = twitter.getMentionsTimeline()
       save_mention(mentionsList, request)
-      Redirect("/")
-      //Ok(views.html.result(conversationList))
+      Redirect("/users/index")
     }
   }
 
@@ -68,19 +67,6 @@ object Application extends ScalaController {
     }
   }
 
-  // twitter setting
-  def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
-    val user = currentUser(request)
-    if (user == null)  {
-      return null
-    }
-    val twitterApiKey      = Play.application.configuration.getString("twitterApiKey").get
-    val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
-    val factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
-    val twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
-    twitter
-  }
-
   //currentuser
   def currentUser(request: RequestHeader) :User = {
     val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
@@ -89,15 +75,5 @@ object Application extends ScalaController {
     }
     val user               = User.findByTwitterId(sessionTwitterId).get
     return user
-  }
-
-  private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
-    var statusId = status.getInReplyToStatusId()
-    if (statusId == -1) {
-      return list
-    }
-  var stat = twitter.showStatus(statusId)
-  var conversationList = stat::list
-  conversation(conversationList, stat, twitter)
   }
 }
