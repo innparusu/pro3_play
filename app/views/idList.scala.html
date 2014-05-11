@@ -1,3 +1,4 @@
+@(currentUser: User)
 <div class="col-md-3">
 
 <br>
@@ -7,26 +8,30 @@
 <br>
 
 ● ここにIDを表示すればいいと思います！！<br>
+
 <div class="media">
-<!-----これで一枠分です-------------->
+  <h1>
+    @currentUser.twitter_id
+  </h1>
+  <!-----これで一枠分です-------------->
   <a class="pull-left" href="#">
     <img class="media-object" src="..." alt="...">
   </a>
   <div class="media-body">
     <a href="https://twitter.com/innparusu">
-    <h4 class="media-heading">(癶ω 癶)<span class="badge badge-info pull-right">42</span></h4></button></a>
-    ぱるぱるぱるぱる
-  </div>
+      <h4 class="media-heading">(癶ω 癶)<span class="badge badge-info pull-right">42</span></h4></button></a>
+  ぱるぱるぱるぱる
+</div>
 <!---------------------------------->
 <br>
 
-  <a class="pull-left" href="#">
-    <img class="media-object" src="favicon.png" alt="...">
-  </a>
-  <div class="media-body">
-    <a href="https://twitter.com/outimatuki">
+<a class="pull-left" href="#">
+  <img class="media-object" src="favicon.png" alt="...">
+</a>
+<div class="media-body">
+  <a href="https://twitter.com/outimatuki">
     <h4 class="media-heading">大内待輝<span class="badge pull-right">36</span></h4></button></a>
-    ＠モチベあげたい
+＠モチベあげたい
   </div>
 
 </div>

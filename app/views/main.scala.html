@@ -15,7 +15,7 @@
   @views.html.header(urlTwitter, currentUser)
   <div class="container">
     @if(currentUser != null) {
-      @views.html.idList()
+      @views.html.idList(currentUser)
     }
       @content
       @views.html.footer()
