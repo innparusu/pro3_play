@@ -24,7 +24,7 @@ object Mention {
     DB.withConnection { implicit connection =>
       SQL(
         """
-          insert into mention(twitter_id, mention_id)
+          insert into Mention(twitter_id, mention_id)
           values ({twitter_id}, {mention_id})
         """
       ).on(
@@ -36,13 +36,13 @@ object Mention {
 
   def findByTwitterId(twitter_id: String): Seq[Mention] = {
     DB.withConnection { implicit connection => 
-      SQL("select * from mention where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(Mention.data *)
+      SQL("select * from Mention where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(Mention.data *)
     }
   }
 
   def findByMentionId(mention_id: Long): Seq[Mention] = {
     DB.withConnection { implicit connection => 
-      SQL("select * from mention where mention_id = {mention_id}").on('mention_id -> mention_id).as(Mention.data *)
+      SQL("select * from Mention where mention_id = {mention_id}").on('mention_id -> mention_id).as(Mention.data *)
     }
   }
 }
