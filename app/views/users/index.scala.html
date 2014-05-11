@@ -1,0 +1,62 @@
+@(currentUser: User)
+
+@import helper.twitterBootstrap._
+
+@main("home", "", currentUser){
+
+
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/jumbotron.css")">
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/back.css")">
+
+
+<div class="col-md-9">
+  <div class="jumbotron">
+    <h1>Welcome!!</h1>
+    <p>ここではtwitter上での会話一覧を見ることが出来ます。<br>
+  表示したい相手を指定出来るだけでなく、日付で検索することも可能です。<br>
+  既にお持ちのtwitterアカウントでログインすることができます。
+  </p>
+  </div>
+
+    <div class="col-md-6">
+      <div class="alert alert-info">最新の会話</div>
+        <ul class="list-group">
+
+          <li class="list-group-item">
+            <a class="pull-left" href="#">
+              <img class="media-object" src="..." alt="...">
+            </a>
+            <div class="media-body">
+              <a href="https://twitter.com/innparusu">
+              <h4 class="media-heading">ユーザー１<span class="badge badge-info pull-right">42</span></h4></button></a>
+              ・・・・・・・・
+            </div>
+          </li>
+
+        </ul>
+     </div>
+      
+      
+      <div class="col-md-6">
+        <div class="alert alert-info">よく会話をする人</div>
+          <ul class="list-group">
+
+            <li class="list-group-item">
+              <a class="pull-left" href="#">
+                <img class="media-object" src="..." alt="...">
+              </a>
+              <div class="media-body">
+                <a href="https://twitter.com/innparusu">
+                <h4 class="media-heading">ユーザー１<span class="badge badge-info pull-right">42</span></h4></button></a>
+                ・・・・・・・・・・
+              </div>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+
+    </div>
+</div>
+}
+
