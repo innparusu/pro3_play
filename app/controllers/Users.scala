@@ -3,6 +3,7 @@ package controllers
 import models.User
 import models.Mention
 import scala.collection.JavaConversions._
+import scala.collection.immutable.ListMap
 import java.util.ArrayList
 import play.api._
 import play.api.mvc._
@@ -28,7 +29,7 @@ object Users extends ScalaController {
       val twitter   = twitterTokenSet(request)
       val mentions  = Mention.findByUserId(user.id)
       val countHash = countSet(mentions)
-      Ok(views.html.users.index(user, countHash))
+      Ok(views.html.users.index(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), mentions.reverse.take(5)))
     }
   }
 
