@@ -7,16 +7,20 @@ import anorm.SqlParser._
 
 case class Mention (
   id: Pk[Long] = NotAssigned,
-  twitter_id: String, mention_id: Long
+  user_id: Pk[Long], twitter_id: String, image_url: String, mention_id: Long, tweet_text: String
 )
 
 object Mention {
 
   val data = {
     get[Pk[Long]]("mention.id") ~
+    get[Pk[Long]]("mention.user_id") ~
     get[String]("mention.twitter_id") ~
-    get[Long]("mention.mention_id") map {
-      case id ~ twitter_id ~ mention_id => Mention(id, twitter_id, mention_id)
+    get[String]("mention.image_url") ~
+    get[Long]("mention.mention_id") ~
+    get[String]("mention.tweet_text") map {
+      case id ~ user_id ~ twitter_id ~ image_url ~ mention_id ~ tweet_text 
+      => Mention(id, user_id, twitter_id, image_url, mention_id, tweet_text)
     }
   }
 
@@ -24,19 +28,22 @@ object Mention {
     DB.withConnection { implicit connection =>
       SQL(
         """
-          insert into Mention(twitter_id, mention_id)
-          values ({twitter_id}, {mention_id})
+          insert into Mention(user_id, twitter_id, image_url, mention_id, tweet_text)
+          values ({user_id}, {twitter_id}, {image_url}, {mention_id}, {tweet_text})
         """
       ).on(
+        'user_id    -> mention.user_id,
         'twitter_id -> mention.twitter_id,
-        'mention_id -> mention.mention_id
+        'image_url  -> mention.image_url,
+        'mention_id -> mention.mention_id,
+        'tweet_text -> mention.tweet_text
       ).executeUpdate()
     }
   }
 
-  def findByTwitterId(twitter_id: String): Seq[Mention] = {
+  def findByUserId(user_id: Pk[Long]): Seq[Mention] = {
     DB.withConnection { implicit connection => 
-      SQL("select * from Mention where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(Mention.data *)
+      SQL("select * from Mention where user_id = {user_id}").on('user_id -> user_id).as(Mention.data *)
     }
   }
 
