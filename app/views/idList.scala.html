@@ -9,13 +9,13 @@
       <img src="@currentUser.image_url", alt="@currentUser.twitter_id">
     </h3>
 
-    @for((user_name, count) <- countHash) {
+    @for((user_id, count) <- countHash) {
       <a class="pull-left" href="#">
         <img class="media-object" src="..." alt="...">
       </a>
       <div class="media-body">
         <a href="https://twitter.com/innparusu">
-        <h4 class="media-heading">@user_name<span class="badge badge-info pull-right">@count</span></h4></button>
+        <h4 class="media-heading">@user_id<span class="badge badge-info pull-right">@count</span></h4></button>
         </a>
       </div>
       <br>
