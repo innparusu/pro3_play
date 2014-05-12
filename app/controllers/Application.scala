@@ -66,8 +66,11 @@ object Application extends ScalaController {
   def save_mention(mentionsList: twitter4j.ResponseList[twitter4j.Status], request: RequestHeader) = {
     for (status <- mentionsList.reverse) {
       if (Mention.findByMentionId(status.getId).isEmpty) {
-        val mention :Mention         = new Mention(twitter_id = currentUser(request).twitter_id,
-                                                   mention_id = status.getId())
+        val mention :Mention         = new Mention(user_id    = currentUser(request).id,
+                                                   twitter_id = status.getUser().getScreenName(),
+                                                   image_url  = status.getUser().getProfileImageURL(),
+                                                   mention_id = status.getId(),
+                                                   tweet_text = status.getText())
         Mention.insert(mention)
       }
     }

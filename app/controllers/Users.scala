@@ -26,8 +26,8 @@ object Users extends ScalaController {
     }
     else{
       val twitter   = twitterTokenSet(request)
-      val mentions  = Mention.findByTwitterId(user.twitter_id)
-      val countHash = countSet(mentions, twitter, user)
+      val mentions  = Mention.findByUserId(user.id)
+      val countHash = countSet(mentions)
       Ok(views.html.users.index(user, countHash))
     }
   }
@@ -55,16 +55,15 @@ object Users extends ScalaController {
     twitter
   }
 
-  private def countSet(mentions: Seq[Mention], twitter: twitter4j.Twitter, user:User) : Map[String, Int] = {
+  private def countSet(mentions: Seq[Mention]) : Map[String, Int] = {
     var countHash = Map[String, Int]()
     for (mention <- mentions) {
-      val status       = twitter.showStatus(mention.mention_id)
-      val name         = status.getUser().getScreenName()
-      if (countHash.isDefinedAt(name)) {
-        countHash = countHash.updated(name, countHash(name)+1)
+      val user_id   = mention.twitter_id
+      if (countHash.isDefinedAt(user_id)) {
+        countHash = countHash.updated(user_id, countHash(user_id)+1)
       }
       else {
-        countHash = countHash.updated(name, 1)
+        countHash = countHash.updated(user_id, 1)
       }
     }
     countHash
