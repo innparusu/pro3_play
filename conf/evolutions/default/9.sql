@@ -6,7 +6,7 @@ create table begin (
   text       varchar(140),
   time       bigint(10),
   tweet_id   bigint(10),
-primary key(conversation_id)
+  primary key(conversation_id)
 );
 
 # --- !Downs
