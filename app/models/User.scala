@@ -44,7 +44,7 @@ object User {
   }
 
  
-  def findById(id: Long): Option[User] = {
+  def findById(id: Pk[Long]): Option[User] = {
     DB.withConnection { implicit connection =>
       SQL("select * from user where id = {id}").on('id -> id).as(User.data.singleOpt)
     }
