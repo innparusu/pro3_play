@@ -1,0 +1,87 @@
+@(currentUser: User, countHash: Map[String, Int], begin: Begin, tweets: Seq[Tweet])
+
+@import helper.twitterBootstrap._
+
+@views.html.idList(currentUser, countHash)
+
+@main("studie", "", currentUser){
+  
+  <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/back.css")">
+  
+  <br>
+  <br>
+  
+  <div class="col-md-8">
+    @if(begin.twitter_id == currentUser.twitter_id) {
+      <div class="alert alert-success">
+      }else {
+      <div class="alert alert-warning">
+      }
+
+      @if(begin.twitter_id == currentUser.twitter_id) {
+      <a class="pull-left" href="#">
+      }else {                                                        
+      <a class="pull-right" href="#">
+      }
+        <img class="media-object" src="@begin.image_url" alt="@begin.twitter_id" width="50" height="50">
+      </a>
+      <div class="media-body">
+        <a href="https://twitter.com/innparusu">
+          <h4>
+            @if(begin.twitter_id == currentUser.twitter_id) {
+            <p>                                                            
+            }else {                                                        
+            <p class="text-right">                                     
+            }
+              @begin.twitter_id
+            </p>
+          </h4>
+        </a>
+        @if(begin.twitter_id == currentUser.twitter_id) {
+        <p>                                                            
+        }else {                                                        
+        <p class="text-right">                                     
+        }
+          @begin.text
+        </p>
+      </div>
+    </div>
+    
+    @for(tweet <- tweets) {
+      @if(tweet.twitter_id == currentUser.twitter_id) {
+        <div class="alert alert-success">
+        }else {
+        <div class="alert alert-warning">
+        }
+
+        @if(tweet.twitter_id == currentUser.twitter_id) {
+        <a class="pull-left" href="#">
+        }else {                                                        
+        <a class="pull-right" href="#">
+        }
+          <img class="media-object" src="@tweet.image_url" alt="@tweet.twitter_id" width="50" height="50">
+        </a>
+        <div class="media-body">
+          <a href="https://twitter.com/innparusu">
+            <h4>
+            @if(tweet.twitter_id == currentUser.twitter_id) {
+            <p>                                                            
+            }else {                                                        
+            <p class="text-right">                                     
+            }
+              @tweet.twitter_id
+            </p>
+            </h4>
+          </a>
+          @if(tweet.twitter_id == currentUser.twitter_id) {
+          <p>                                                            
+          }else {                                                        
+          <p class="text-right">                                     
+          }
+            @tweet.text
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+}
