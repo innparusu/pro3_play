@@ -19,20 +19,18 @@ import twitter4j._
 import twitter4j.conf._
 import twitter4j.auth._
 import play.api.libs.json.Json
-import play.api.db._
 import anorm._
-import anorm.SqlParser._
 
 
 object Users extends ScalaController {
 
+  // index action
   def index = Action{ request =>
     val user = currentUser(request)
     if (user == null) {
       Redirect("/")
     }
     else{
-      val twitter   = twitterTokenSet(request)
       val begins    = Begin.findByUserId(user.id)
       val tweets    = Tweet.findByUserId(user.id)
       val countHash = countSet(tweets, user)
@@ -40,7 +38,23 @@ object Users extends ScalaController {
     }
   }
 
-  //currentuser
+  // convetion action
+  def chat(tweet_id: String) = Action{ request =>
+    val user = currentUser(request)
+    if (user == null) {
+      Redirect("/")
+    }
+    else{
+      val twitter     = twitterTokenSet(request)
+      var tweets      = Tweet.findByUserId(user.id)
+      val countHash   = countSet(tweets, user)
+      val begin       = Begin.findByTweetId(tweet_id.toLong).get
+      val tweets_chat = Tweet.findByConversationId(begin.conversation_id)
+      Ok(views.html.users.chat(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begin, tweets_chat))
+    }
+  }
+
+  // currentuser
   private def currentUser(request: RequestHeader) :User = {
     val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
     if (sessionTwitterId == "") {
@@ -60,9 +74,10 @@ object Users extends ScalaController {
     val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
     val factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
     val twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
-    twitter
+    return twitter
   }
 
+  // countset
   private def countSet(tweets: Seq[Tweet], currentUser: User) : Map[String, Int] = {
     var countHash                = Map[String, Int]()
     var conversation_id:Pk[Long] = null
@@ -85,9 +100,10 @@ object Users extends ScalaController {
       }
       conversation_id = tweet.conversation_id
     }
-    countHash
+    return countHash
   }
 
+  // conversation
   private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
     var statusId = status.getInReplyToStatusId()
     if (statusId == -1) {
