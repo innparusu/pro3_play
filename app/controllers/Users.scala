@@ -75,8 +75,8 @@ object Users extends ScalaController {
     if (statusId == -1) {
       return list
     }
-  var stat = twitter.showStatus(statusId)
-  var conversationList = stat::list
-  conversation(conversationList, stat, twitter)
+    val stat = twitter.showStatus(statusId)
+    val conversationList = stat::list
+    conversation(conversationList, stat, twitter)
   }
 }

@@ -2,6 +2,8 @@ package controllers
 
 import models.User
 import models.Mention
+import models.Tweet
+import models.Begin
 import scala.collection.JavaConversions._
 import java.util.ArrayList
 import play.api._
@@ -39,7 +41,7 @@ object Application extends ScalaController {
                                         access_token  = profile.getAccessToken(),
                                         access_secret = profile.getAccessSecret(),
                                         image_url     = profile.getPictureUrl())
-      User.insert(user)
+      user.insert
     }
 
     Redirect("/result").withSession("twitter_id"    -> profile.getUsername())
@@ -51,33 +53,27 @@ object Application extends ScalaController {
 
 
   def result = Action { request =>
-    val twitter      = twitterTokenSet(request)
+    val twitter = twitterTokenSet(request)
     if (twitter == null) {
       Redirect("/")
     }
     else {
       val mentionsList = twitter.getMentionsTimeline()
-      save_mention(mentionsList, request)
+      save_mention(mentionsList, request, twitter)
       Redirect("/users/index")
     }
   }
 
 
-  def save_mention(mentionsList: twitter4j.ResponseList[twitter4j.Status], request: RequestHeader) = {
+  def save_mention(mentionsList: twitter4j.ResponseList[twitter4j.Status], request: RequestHeader, twitter: twitter4j.Twitter) = {
     for (status <- mentionsList.reverse) {
-      if (Mention.findByMentionId(status.getId).isEmpty) {
-        val mention :Mention         = new Mention(user_id    = currentUser(request).id,
-                                                   twitter_id = status.getUser().getScreenName(),
-                                                   image_url  = status.getUser().getProfileImageURL(),
-                                                   mention_id = status.getId(),
-                                                   tweet_text = status.getText())
-        Mention.insert(mention)
-      }
+     val conversationList = conversation(List(status), status, twitter)
+     conversation_save(conversationList, request)
     }
   }
 
   // twitter setting
-  def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
+  private def twitterTokenSet(request: RequestHeader) :twitter4j.Twitter = {
     val user = currentUser(request)
     if (user == null)  {
       return null
@@ -86,16 +82,80 @@ object Application extends ScalaController {
     val twitterSecret      = Play.application.configuration.getString("twitterSecret").get
     val factory            = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(twitterApiKey).setOAuthConsumerSecret(twitterSecret).build())
     val twitter            = factory.getInstance(new AccessToken(user.access_token, user.access_secret))
-    twitter
+    return twitter
   }
 
   //currentuser
-  def currentUser(request: RequestHeader) :User = {
-    val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
+  private def currentUser(request: RequestHeader) :User = {
+    val sessionTwitterId = request.session.get("twitter_id").getOrElse("")
     if (sessionTwitterId == "") {
       return null
     }
     val user               = User.findByTwitterId(sessionTwitterId).get
     return user
   }
-}
+
+  //conversation
+  private def conversation (list: List[twitter4j.Status], status: twitter4j.Status, twitter: twitter4j.Twitter):List[twitter4j.Status] = {
+    var statusId = status.getInReplyToStatusId()
+    if (statusId == -1) {
+      return list
+    }
+    val stat = twitter.showStatus(statusId)
+    val conversationList = stat::list
+    conversation(conversationList, stat, twitter)
+  }
+
+  private def conversation_save (conversationList: List[twitter4j.Status], request:RequestHeader) = {
+    var begin:Begin = null
+    for (status <- conversationList) {
+      if(status.getInReplyToStatusId() == -1){
+        begin = begin_save(status)
+      }
+      else {
+        println("------------")
+        println(begin.conversation_id)
+        println("-----------")
+        tweet_save (status, begin, request)
+      }
+    }
+  }
+
+  private def begin_save (status: twitter4j.Status) :Begin = {
+    var begin_option = Begin.findByTweetId(status.getId())
+    if (begin_option.isEmpty) {
+      var begin = new Begin(image_url       = status.getUser().getProfileImageURL(),
+                            twitter_id      = status.getUser().getScreenName(),
+                            text            = status.getText(),
+                            time            = status.getCreatedAt().getTime().toLong,
+                            tweet_id        = status.getId()
+                            )
+      begin.insert
+      begin = Begin.findByTweetId(status.getId()).get
+      return begin
+    }
+    else {
+      val begin = begin_option.get
+      return begin
+    }
+  }
+
+  private def tweet_save (status: twitter4j.Status, begin:Begin, request:RequestHeader) = {
+    println("----------")
+    println(begin.conversation_id)
+    println("----------")
+    var tweet_option = Tweet.findByTweetId(status.getId())
+    if (tweet_option.isEmpty) {
+      val tweet = new Tweet(user_id         = currentUser(request).id,
+                            image_url       = status.getUser().getProfileImageURL(),
+                            twitter_id      = status.getUser().getScreenName(),
+                            text            = status.getText(),
+                            time            = status.getCreatedAt().getTime().toLong,
+                            tweet_id        = status.getId(),
+                            reply           = status.getInReplyToStatusId(),
+                            conversation_id = begin.conversation_id
+                            )
+      tweet.insert
+    }
+  }
+} 
