@@ -19,6 +19,10 @@ import twitter4j._
 import twitter4j.conf._
 import twitter4j.auth._
 import play.api.libs.json.Json
+import play.api.db._
+import anorm._
+import anorm.SqlParser._
+
 
 object Users extends ScalaController {
 
@@ -29,8 +33,9 @@ object Users extends ScalaController {
     }
     else{
       val twitter   = twitterTokenSet(request)
-      val begins  = Begin.findByUserId(user.id)
-      val countHash = countSet(begins)
+      val begins    = Begin.findByUserId(user.id)
+      val tweets    = Tweet.findByUserId(user.id)
+      val countHash = countSet(tweets, user)
       Ok(views.html.users.index(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse.take(5)))
     }
   }
@@ -58,16 +63,27 @@ object Users extends ScalaController {
     twitter
   }
 
-  private def countSet(begins: Seq[Begin]) : Map[String, Int] = {
-    var countHash = Map[String, Int]()
-    for (begin <- begins) {
-      val user_id   = begin.twitter_id
+  private def countSet(tweets: Seq[Tweet], currentUser: User) : Map[String, Int] = {
+    var countHash                = Map[String, Int]()
+    var conversation_id:Pk[Long] = null
+    println(tweets)
+    for (tweet <- tweets if conversation_id != tweet.conversation_id) {
+      var user_id:String = ""
+      if(currentUser.twitter_id == tweet.twitter_id) {
+        val begin = Begin.findByConversationId(tweet.conversation_id).get
+        user_id   = begin.twitter_id
+      }
+      else {
+        user_id   = tweet.twitter_id
+      }
+
       if (countHash.isDefinedAt(user_id)) {
         countHash = countHash.updated(user_id, countHash(user_id)+1)
       }
       else {
         countHash = countHash.updated(user_id, 1)
       }
+      conversation_id = tweet.conversation_id
     }
     countHash
   }
