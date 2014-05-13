@@ -2,6 +2,8 @@ package controllers
 
 import models.User
 import models.Mention
+import models.Begin
+import models.Tweet
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
 import java.util.ArrayList
@@ -27,9 +29,9 @@ object Users extends ScalaController {
     }
     else{
       val twitter   = twitterTokenSet(request)
-      val mentions  = Mention.findByUserId(user.id)
-      val countHash = countSet(mentions)
-      Ok(views.html.users.index(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), mentions.reverse.take(5)))
+      val begins  = Begin.findByUserId(user.id)
+      val countHash = countSet(begins)
+      Ok(views.html.users.index(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse.take(5)))
     }
   }
 
@@ -56,10 +58,10 @@ object Users extends ScalaController {
     twitter
   }
 
-  private def countSet(mentions: Seq[Mention]) : Map[String, Int] = {
+  private def countSet(begins: Seq[Begin]) : Map[String, Int] = {
     var countHash = Map[String, Int]()
-    for (mention <- mentions) {
-      val user_id   = mention.twitter_id
+    for (begin <- begins) {
+      val user_id   = begin.twitter_id
       if (countHash.isDefinedAt(user_id)) {
         countHash = countHash.updated(user_id, countHash(user_id)+1)
       }
