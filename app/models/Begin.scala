@@ -49,7 +49,7 @@ object Begin {
     }
   }
 
-  def findByConversationId(conversation_id: Long): Option[Begin] = {
+  def findByConversationId(conversation_id: Pk[Long]): Option[Begin] = {
     DB.withConnection { implicit connection =>
       SQL("select * from begin where conversation_id = {conversation_id}").on('conversation_id -> conversation_id).as(Begin.data.singleOpt)
     }

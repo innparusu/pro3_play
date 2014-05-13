@@ -61,9 +61,9 @@ object Tweet {
     }
   }
 
-  def findByUserID(user_id: Long): Option[Tweet] = {
+  def findByUserId(user_id: Pk[Long]): Seq[Tweet] = {
     DB.withConnection { implicit connection =>
-      SQL("select * from tweet where id = {user_id}").on('user_id -> user_id).as(Tweet.data.singleOpt)
+      SQL("select * from tweet where user_id = {user_id}").on('user_id -> user_id).as(Tweet.data *)
     }
   }
 
