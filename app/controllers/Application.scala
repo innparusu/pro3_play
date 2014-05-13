@@ -110,21 +110,19 @@ object Application extends ScalaController {
     var begin:Begin = null
     for (status <- conversationList) {
       if(status.getInReplyToStatusId() == -1){
-        begin = begin_save(status)
+        begin = begin_save(status, request)
       }
       else {
-        println("------------")
-        println(begin.conversation_id)
-        println("-----------")
         tweet_save (status, begin, request)
       }
     }
   }
 
-  private def begin_save (status: twitter4j.Status) :Begin = {
+  private def begin_save (status: twitter4j.Status, request:RequestHeader) :Begin = {
     var begin_option = Begin.findByTweetId(status.getId())
     if (begin_option.isEmpty) {
-      var begin = new Begin(image_url       = status.getUser().getProfileImageURL(),
+      var begin = new Begin(user_id         = currentUser(request).id,
+                            image_url       = status.getUser().getProfileImageURL(),
                             twitter_id      = status.getUser().getScreenName(),
                             text            = status.getText(),
                             time            = status.getCreatedAt().getTime().toLong,
@@ -141,9 +139,6 @@ object Application extends ScalaController {
   }
 
   private def tweet_save (status: twitter4j.Status, begin:Begin, request:RequestHeader) = {
-    println("----------")
-    println(begin.conversation_id)
-    println("----------")
     var tweet_option = Tweet.findByTweetId(status.getId())
     if (tweet_option.isEmpty) {
       val tweet = new Tweet(user_id         = currentUser(request).id,

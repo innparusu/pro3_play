@@ -7,8 +7,9 @@ import anorm.SqlParser._
 
 case class Begin(
   conversation_id:Pk[Long] = NotAssigned,
+  user_id:        Pk[Long],
   image_url:      String,
-  twitter_id:      String,
+  twitter_id:     String,
   text:           String,
   time:           Long,
   tweet_id:       Long) {
@@ -17,10 +18,11 @@ case class Begin(
     DB.withConnection { implicit c =>
       SQL(
         """
-        insert into begin (image_url, twitter_id, text, time, tweet_id)
-        values ({image_url}, {twitter_id}, {text}, {time}, {tweet_id})
+        insert into begin (user_id, image_url, twitter_id, text, time, tweet_id)
+        values ({user_id}, {image_url}, {twitter_id}, {text}, {time}, {tweet_id})
         """
       ).on(
+        'user_id        -> this.user_id,
         'image_url      -> this.image_url,
         'twitter_id     -> this.twitter_id,
         'text           -> this.text,
@@ -36,19 +38,26 @@ object Begin {
 
   val data = {
     get[Pk[Long]]("begin.conversation_id") ~
+    get[Pk[Long]]("begin.user_id") ~
     get[String]("begin.image_url") ~
     get[String]("begin.twitter_id") ~
     get[String]("begin.text") ~
     get[Long]("begin.time") ~
     get[Long]("begin.tweet_id") map {
-      case conversation_id ~ image_url ~ twitter_id ~ text ~ time ~ tweet_id 
-      => Begin(conversation_id, image_url, twitter_id, text, time, tweet_id)
+      case conversation_id ~ user_id ~ image_url ~ twitter_id ~ text ~ time ~ tweet_id 
+      => Begin(conversation_id, user_id, image_url, twitter_id, text, time, tweet_id)
     }
   }
 
   def findByConversationId(conversation_id: Long): Option[Begin] = {
     DB.withConnection { implicit connection =>
       SQL("select * from begin where conversation_id = {conversation_id}").on('conversation_id -> conversation_id).as(Begin.data.singleOpt)
+    }
+  }
+
+  def findByUserId(user_id: Pk[Long]): Seq[Begin] = {
+    DB.withConnection { implicit connection => 
+      SQL("select * from begin where user_id = {user_id}").on('user_id -> user_id).as(Begin.data *)
     }
   }
 
