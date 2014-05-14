@@ -61,6 +61,12 @@ object Begin {
     }
   }
 
+  def findByTwitterId(twitter_id: String): Seq[Begin] = {
+    DB.withConnection { implicit connection => 
+      SQL("select * from begin where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(Begin.data *)
+    }
+  }
+
   def findByTweetId(tweet_id: Long): Option[Begin] = {
     DB.withConnection { implicit connection =>
       SQL("select * from begin where tweet_id = {tweet_id}").on('tweet_id -> tweet_id).as(Begin.data.singleOpt)
