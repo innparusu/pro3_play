@@ -69,6 +69,18 @@ object Users extends ScalaController {
     }
   }
 
+  def idList() = Action{ request =>
+    val user = currentUser(request)
+    if (user == null) {
+      Redirect("/")
+    }
+    else{
+      var tweets    = Tweet.findByUserId(user.id)
+      val countHash = countSet(tweets, user)
+      Ok(views.html.users.idList(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*)))
+    }
+  }
+
   // currentuser
   private def currentUser(request: RequestHeader) :User = {
     val sessionTwitterId   = request.session.get("twitter_id").getOrElse("")
