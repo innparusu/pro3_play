@@ -10,6 +10,7 @@ GET     /signout                    controllers.Application.signout
 
 # user page
 GET     /users/index                controllers.Users.index
+GET     /users/chat                 controllers.Users.chat(tweet_id: String ?= "")
 
 # pac4j
 GET     /callback                   org.pac4j.play.CallbackController.callback()
