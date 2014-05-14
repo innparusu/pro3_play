@@ -1,0 +1,30 @@
+@(currentUser: User, countHash: Map[String, Int], begins: Seq[Begin])
+
+@import helper.twitterBootstrap._
+
+@views.html.idList(currentUser, countHash)
+
+@main("home", "", currentUser){
+
+  <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/back.css")">
+
+
+  <div class="col-md-9">
+    <div class="alert alert-info">最新の会話</div>
+    <ul class="list-group">
+      @for(begin <- begins) {
+        <li class="list-group-item">
+          <a class="pull-left" href="#">
+            <img class="media-object" src="@begin.image_url" alt="@begin.twitter_id" width="50" height="50">
+          </a>
+          <div class="media-body">
+            <h4 class="media-heading">@begin.twitter_id </h4>
+            <a href="/users/chat?tweet_id=@begin.tweet_id">
+            @begin.text
+            </a>
+         </div>
+        </li>
+      }
+    </ul>
+  </div>
+}
