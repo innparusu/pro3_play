@@ -49,6 +49,7 @@ object Users extends ScalaController {
       var tweets      = Tweet.findByUserId(user.id)
       val countHash   = countSet(tweets, user)
       val begin       = Begin.findByTweetId(tweet_id.toLong).get
+      if(begin == null)  Redirect("/")
       val tweets_chat = Tweet.findByConversationId(begin.conversation_id)
       Ok(views.html.users.chat(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begin, tweets_chat))
     }
