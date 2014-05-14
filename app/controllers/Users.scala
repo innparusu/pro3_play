@@ -33,6 +33,7 @@ object Users extends ScalaController {
     else{
       val begins    = Begin.findByUserId(user.id)
       val tweets    = Tweet.findByUserId(user.id)
+      println(tweets)
       val countHash = countSet(tweets, user)
       Ok(views.html.users.index(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse.take(5)))
     }
@@ -60,10 +61,17 @@ object Users extends ScalaController {
     if (user == null) {
       Redirect("/")
     }
-    else{
+    else if(twitter_id == ""){
       var tweets    = Tweet.findByUserId(user.id)
       val countHash = countSet(tweets, user)
       val begins    = Begin.findByUserId(user.id)
+      if(begins.isEmpty)  Redirect("/")
+      Ok(views.html.users.chats(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse))
+    }
+    else {
+      val tweets      = Tweet.findByUserId(user.id)
+      val countHash = countSet(tweets, user)
+      val begins    = Begin.findByTwitterId(twitter_id)
       if(begins.isEmpty)  Redirect("/")
       Ok(views.html.users.chats(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse))
     }
