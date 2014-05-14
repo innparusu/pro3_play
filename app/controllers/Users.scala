@@ -38,20 +38,34 @@ object Users extends ScalaController {
     }
   }
 
-  // convetion action
+  // chat action
   def chat(tweet_id: String) = Action{ request =>
     val user = currentUser(request)
     if (user == null) {
       Redirect("/")
     }
     else{
-      val twitter     = twitterTokenSet(request)
-      var tweets      = Tweet.findByUserId(user.id)
+      val tweets      = Tweet.findByUserId(user.id)
       val countHash   = countSet(tweets, user)
       val begin       = Begin.findByTweetId(tweet_id.toLong).get
       if(begin == null)  Redirect("/")
       val tweets_chat = Tweet.findByConversationId(begin.conversation_id)
       Ok(views.html.users.chat(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begin, tweets_chat))
+    }
+  }
+
+  // chats action
+  def chats(twitter_id: String) = Action{ request =>
+    val user = currentUser(request)
+    if (user == null) {
+      Redirect("/")
+    }
+    else{
+      var tweets    = Tweet.findByUserId(user.id)
+      val countHash = countSet(tweets, user)
+      val begins    = Begin.findByUserId(user.id)
+      if(begins.isEmpty)  Redirect("/")
+      Ok(views.html.users.chats(user, ListMap(countHash.toSeq.sortBy(_._2).reverse:_*), begins.reverse))
     }
   }
 
