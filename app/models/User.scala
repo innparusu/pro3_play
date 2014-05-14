@@ -46,19 +46,19 @@ object User {
  
   def findById(id: Pk[Long]): Option[User] = {
     DB.withConnection { implicit connection =>
-      SQL("select * from user where id = {id}").on('id -> id).as(User.data.singleOpt)
+      SQL("select * from User where id = {id}").on('id -> id).as(User.data.singleOpt)
     }
   }
 
   def findByTwitterId(twitter_id: String): Option[User] = {
     DB.withConnection { implicit connection =>
-      SQL("select * from user where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(User.data.singleOpt)
+      SQL("select * from User where twitter_id = {twitter_id}").on('twitter_id -> twitter_id).as(User.data.singleOpt)
     }
   }
  
   def findAll(): Seq[User] = {
     DB.withConnection { implicit connection =>
-      SQL("select * from user").as(User.data *)
+      SQL("select * from User").as(User.data *)
     }
   }
 }
